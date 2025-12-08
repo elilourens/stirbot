@@ -1,0 +1,38 @@
+# Python
+*.py[cod]
+*$py.class
+__pycache__/
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+
+# Project specific
+*.log
+*.csv
+*.json
+data/
+downloads/
+cache/
+
+
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
