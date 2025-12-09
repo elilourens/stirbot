@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import html5lib
 from urllib.parse import urljoin
 import time
+import json
 
 
 class WebScraper:
@@ -52,6 +53,8 @@ if __name__ == "__main__":
         found_urls = {"https://www.stir.ac.uk/"}
         urls_to_visit = ["https://www.stir.ac.uk/"]
 
+
+        scraped_data = []
         
 
 
@@ -61,19 +64,38 @@ if __name__ == "__main__":
             soup = scraper.scrape(current_url)
             if soup:
                 links = soup.find_all('a', href=True)
+
+                # Remove script and style elements for cleaner text
+                for script in soup(['script', 'style']):
+                    script.decompose()
+
+                page_data = {
+                    'url': current_url,
+                    'title': soup.find('title').get_text() if soup.find('title') else '',
+                    'text': soup.get_text(separator=' ', strip=True),  # All text on page
+                    'headings': [h.get_text() for h in soup.find_all(['h1', 'h2', 'h3'])]
+                }
+                scraped_data.append(page_data)
+
                 for link in links:
                     
                     absolute_url = urljoin(current_url, link['href'])
 
                     if absolute_url not in found_urls and absolute_url.startswith('https://www.stir.ac.uk'):
+                        if absolute_url.startswith(('https://www.stir.ac.uk/research', 'https://www.stir.ac.uk/media','https://www.stir.ac.uk/people','https://www.stir.ac.uk/news','https://www.stir.ac.uk/about/our-people','https://www.stir.ac.uk/student-stories','https://www.stir.ac.uk/about/professional-services','https://www.stir.ac.uk/about/university-collections','https://www.stir.ac.uk/staff-profiles','https://www.stir.ac.uk/events/','https://www.stir.ac.uk/scholarships','https://www.stir.ac.uk/expert')):
+                            continue
+                        if 'our-research' in absolute_url or 'research-groups' in absolute_url:
+                            continue
                         found_urls.add(absolute_url)
                         urls_to_visit.append(absolute_url)
-            time.sleep(1)
+            ##time.sleep(0.56) 
 
 
 
 
 
 
-
+        with open("demofile.txt", "w", encoding="utf-8") as f:
+            json.dump(scraped_data, f, indent=2, ensure_ascii=False)
         print(f"\nFound {len(found_urls)} links:")
+        
