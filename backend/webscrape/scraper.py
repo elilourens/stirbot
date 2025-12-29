@@ -5,6 +5,8 @@ from urllib.parse import urljoin
 import time
 import json
 
+from backend.utils.chunker import chunk_scraped_data
+
 
 class WebScraper:
     def __init__(self, timeout=30.0):
@@ -45,40 +47,31 @@ class WebScraper:
         self.close()
 
 
-if __name__ == "__main__":
-    # Example usage
+def main(chunk_size=1000):
     with WebScraper() as scraper:
-        
-        
         found_urls = {"https://www.stir.ac.uk/"}
         urls_to_visit = ["https://www.stir.ac.uk/"]
-
-
         scraped_data = []
-        
 
-
-        while(urls_to_visit):
+        while urls_to_visit:
             current_url = urls_to_visit.pop(0)
             print(f"\nVisiting: {current_url}")
             soup = scraper.scrape(current_url)
             if soup:
                 links = soup.find_all('a', href=True)
 
-                # Remove script and style elements for cleaner text
                 for script in soup(['script', 'style']):
                     script.decompose()
 
                 page_data = {
                     'url': current_url,
                     'title': soup.find('title').get_text() if soup.find('title') else '',
-                    'text': soup.get_text(separator=' ', strip=True),  # All text on page
+                    'text': soup.get_text(separator=' ', strip=True),
                     'headings': [h.get_text() for h in soup.find_all(['h1', 'h2', 'h3'])]
                 }
                 scraped_data.append(page_data)
 
                 for link in links:
-                    
                     absolute_url = urljoin(current_url, link['href'])
 
                     if absolute_url not in found_urls and absolute_url.startswith('https://www.stir.ac.uk'):
@@ -88,14 +81,20 @@ if __name__ == "__main__":
                             continue
                         found_urls.add(absolute_url)
                         urls_to_visit.append(absolute_url)
-            ##time.sleep(0.56) 
 
-
-
-
-
-
-        with open("demofile.txt", "w", encoding="utf-8") as f:
+        chunked_data = chunk_scraped_data(scraped_data, chunk_size=chunk_size)
+        """
+        with open("scraped_data.json", "w", encoding="utf-8") as f:
             json.dump(scraped_data, f, indent=2, ensure_ascii=False)
-        print(f"\nFound {len(found_urls)} links:")
+        """
+        with open("chunked_data.json", "w", encoding="utf-8") as f:
+            json.dump(chunked_data, f, indent=2, ensure_ascii=False)
+
+        #print(f"\nFound {len(found_urls)} links:")
+        #print(f"Scraped {len(scraped_data)} pages")
+        #print(f"Created {len(chunked_data)} chunks")
+
+
+if __name__ == "__main__":
+    main()
         
