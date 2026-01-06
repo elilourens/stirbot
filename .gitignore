@@ -25,10 +25,11 @@ ENV/
 # Project specific
 *.log
 *.csv
-*.json
+
 data/
 downloads/
 cache/
+chroma_db/
 
 
 
