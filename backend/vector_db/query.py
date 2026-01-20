@@ -5,11 +5,13 @@ def search(query, n_results=5):
     collection = client.get_or_create_collection("university_docs")
     results = collection.query(query_texts=[query], n_results=n_results)
 
+    context_parts = []
     for doc, metadata in zip(results['documents'][0], results['metadatas'][0]):
         print(f"\nURL: {metadata['url']}")
         print(f"Text: {doc[:200]}...\n")
+        context_parts.append(f"Source: {metadata['url']}\n{doc}")
 
-    return results
+    return "\n\n".join(context_parts)
 
 if __name__ == "__main__":
     import sys

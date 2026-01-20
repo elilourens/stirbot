@@ -75,7 +75,7 @@ def main(chunk_size=1000):
                     absolute_url = urljoin(current_url, link['href'])
 
                     if absolute_url not in found_urls and absolute_url.startswith('https://www.stir.ac.uk'):
-                        if absolute_url.startswith(('https://www.stir.ac.uk/research', 'https://www.stir.ac.uk/media','https://www.stir.ac.uk/people','https://www.stir.ac.uk/news','https://www.stir.ac.uk/about/our-people','https://www.stir.ac.uk/student-stories','https://www.stir.ac.uk/about/professional-services','https://www.stir.ac.uk/about/university-collections','https://www.stir.ac.uk/staff-profiles','https://www.stir.ac.uk/events/','https://www.stir.ac.uk/scholarships','https://www.stir.ac.uk/expert')):
+                        if absolute_url.startswith(('https://www.stir.ac.uk/research')):
                             continue
                         if 'our-research' in absolute_url or 'research-groups' in absolute_url:
                             continue
