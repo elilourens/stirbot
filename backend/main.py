@@ -1,7 +1,7 @@
-from backend.webscrape import scraper
-from backend.vector_db import load_data
-from backend.vector_db import search
-from backend.llm_interface import chat
+from webscrape import scraper
+from vector_db import load_data
+from vector_db import search
+from llm_interface import chat
 
 CHUNK_SIZE = 1000
 LLM_MODEL = "Mistral"
@@ -40,7 +40,7 @@ def chatbot():
 
 
 if __name__ == "__main__":
-    #scrape()
-    ingest()
+    scrape()
+    #ingest()
     #search("Library Opening times ")
     #chatbot()

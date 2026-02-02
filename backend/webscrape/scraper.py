@@ -1,11 +1,10 @@
 import httpx
 from bs4 import BeautifulSoup
-import html5lib
 from urllib.parse import urljoin
 import time
 import json
 
-from backend.utils.chunker import chunk_scraped_data
+from utils.chunker import chunk_scraped_data
 
 
 class WebScraper:
@@ -28,7 +27,7 @@ class WebScraper:
     def parse_html(self, html_content):
         """Parse HTML content using BeautifulSoup."""
         if html_content:
-            return BeautifulSoup(html_content, 'html5lib')
+            return BeautifulSoup(html_content, 'lxml')
         return None
 
     def scrape(self, url):
@@ -48,9 +47,10 @@ class WebScraper:
 
 
 def main(chunk_size=1000):
+    start_time = time.time()
     with WebScraper() as scraper:
-        found_urls = {"https://www.stir.ac.uk/"}
-        urls_to_visit = ["https://www.stir.ac.uk/"]
+        found_urls = {"https://www.stir.ac.uk/", "https://www.stir.ac.uk/sitemap/"}
+        urls_to_visit = ["https://www.stir.ac.uk/", "https://www.stir.ac.uk/sitemap/"]
         scraped_data = []
 
         while urls_to_visit:
@@ -75,10 +75,6 @@ def main(chunk_size=1000):
                     absolute_url = urljoin(current_url, link['href'])
 
                     if absolute_url not in found_urls and absolute_url.startswith('https://www.stir.ac.uk'):
-                        if absolute_url.startswith(('https://www.stir.ac.uk/research')):
-                            continue
-                        if 'our-research' in absolute_url or 'research-groups' in absolute_url:
-                            continue
                         found_urls.add(absolute_url)
                         urls_to_visit.append(absolute_url)
 
@@ -90,9 +86,10 @@ def main(chunk_size=1000):
         with open("chunked_data.json", "w", encoding="utf-8") as f:
             json.dump(chunked_data, f, indent=2, ensure_ascii=False)
 
-        #print(f"\nFound {len(found_urls)} links:")
-        #print(f"Scraped {len(scraped_data)} pages")
-        #print(f"Created {len(chunked_data)} chunks")
+    elapsed_time = time.time() - start_time
+    print(f"\nScraping complete!")
+    print(f"Total pages visited: {len(scraped_data)}")
+    print(f"Time elapsed: {elapsed_time:.2f} seconds")
 
 
 if __name__ == "__main__":

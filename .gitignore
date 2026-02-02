@@ -31,7 +31,7 @@ downloads/
 cache/
 chroma_db/
 
-
+*.json
 
 # pytest
 .pytest_cache/
