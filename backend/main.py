@@ -40,7 +40,7 @@ def chatbot():
 
 
 if __name__ == "__main__":
-    scrape()
+    #scrape()
     #ingest()
     #search("Library Opening times ")
-    #chatbot()
+    chatbot()

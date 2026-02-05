@@ -48,6 +48,11 @@ class WebScraper:
 
 def main(chunk_size=1000):
     start_time = time.time()
+
+    excluded_patterns = [
+        '/research/hub',
+    ]
+
     with WebScraper() as scraper:
         found_urls = {"https://www.stir.ac.uk/", "https://www.stir.ac.uk/sitemap/"}
         urls_to_visit = ["https://www.stir.ac.uk/", "https://www.stir.ac.uk/sitemap/"]
@@ -74,9 +79,15 @@ def main(chunk_size=1000):
                 for link in links:
                     absolute_url = urljoin(current_url, link['href'])
 
-                    if absolute_url not in found_urls and absolute_url.startswith('https://www.stir.ac.uk'):
-                        found_urls.add(absolute_url)
-                        urls_to_visit.append(absolute_url)
+                    if absolute_url in found_urls:
+                        continue
+                    if not absolute_url.startswith('https://www.stir.ac.uk'):
+                        continue
+                    if any(pattern in absolute_url for pattern in excluded_patterns): ## Exlude all links with this substring.
+                        continue
+
+                    found_urls.add(absolute_url)
+                    urls_to_visit.append(absolute_url)
 
         chunked_data = chunk_scraped_data(scraped_data, chunk_size=chunk_size)
         """
@@ -87,7 +98,7 @@ def main(chunk_size=1000):
             json.dump(chunked_data, f, indent=2, ensure_ascii=False)
 
     elapsed_time = time.time() - start_time
-    print(f"\nScraping complete!")
+    print(f"\nScraping complete.")
     print(f"Total pages visited: {len(scraped_data)}")
     print(f"Time elapsed: {elapsed_time:.2f} seconds")
 
