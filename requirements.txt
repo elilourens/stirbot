@@ -1,12 +1,8 @@
-requests==2.31.0
 beautifulsoup4==4.12.3
 lxml==5.1.0
-scrapy==2.11.0
 httpx>=0.27.0
-html5lib==1.1
-pandas==2.1.4
-python-dotenv==1.0.0
 tqdm==4.66.1
+ijson>=3.0.0
 
 # Vector database
 chromadb>=1.4.0
@@ -14,3 +10,10 @@ sentence-transformers>=5.2.0
 
 # LLM interface
 ollama>=0.4.0
+
+# GPU Support (Optional - for NVIDIA GPUs with CUDA 11.8)
+# Uncomment and run these commands to enable GPU acceleration:
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# Then verify: python -c "import torch; print(torch.cuda.is_available())"
+#
+# For other CUDA versions, visit: https://pytorch.org/get-started/locally/

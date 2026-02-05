@@ -1,3 +1,4 @@
+import asyncio
 from webscrape import scraper
 from vector_db import load_data
 from vector_db import search
@@ -9,7 +10,7 @@ LLM_MODEL = "Mistral"
 
 def scrape():
     """Scrape the entire Stir University website and save chunked data."""
-    scraper.main(chunk_size=CHUNK_SIZE)
+    asyncio.run(scraper.main(chunk_size=CHUNK_SIZE))
 
 
 def ingest():
