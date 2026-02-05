@@ -1,8 +1,10 @@
 import asyncio
+import sys
 from webscrape import scraper
 from vector_db import load_data
 from vector_db import search
 from llm_interface import chat
+from tests.evaluate_rag import run_evaluation
 
 CHUNK_SIZE = 1000
 LLM_MODEL = "Mistral"
@@ -16,6 +18,11 @@ def scrape():
 def ingest():
     """Load scraped data into ChromaDB."""
     load_data("chunked_data.json")
+
+def evaluate():
+    """Run RAGAS evaluation on the RAG system."""
+    run_evaluation()
+
 
 def chatbot():
     system_prompt = "You are a helpful chatbot that returns relevant appropriate answers for people interested in knowing more about stirling university." \
@@ -35,7 +42,7 @@ def chatbot():
             continue
 
         context = search(user_query)
-        response = chat(user_query, context, LLM_MODEL, system_prompt) 
+        response = chat(user_query, context, LLM_MODEL, system_prompt)
         print(response)
 
 
@@ -44,4 +51,5 @@ if __name__ == "__main__":
     #scrape()
     #ingest()
     #search("Library Opening times ")
-    chatbot()
+    #chatbot()
+    evaluate()
