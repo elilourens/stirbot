@@ -11,6 +11,11 @@ sentence-transformers>=5.2.0
 # LLM interface
 ollama>=0.4.0
 
+# RAG Evaluation
+ragas>=0.1.0
+datasets>=2.14.0
+langchain-ollama>=0.1.0
+
 # GPU Support (Optional - for NVIDIA GPUs with CUDA 11.8)
 # Uncomment and run these commands to enable GPU acceleration:
 # pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
