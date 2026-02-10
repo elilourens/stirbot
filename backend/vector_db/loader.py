@@ -14,17 +14,19 @@ def load_data(json_file="chunked_data.json", batch_size=5000):
     embedding_fn = get_embedding_function()
 
     # Delete existing collection
+    print("Deleting existing collection...", flush=True)
     try:
         client.delete_collection("university_docs")
-        print(" Wiped existing collection")
+        print("Wiped existing collection", flush=True)
     except:
         pass
 
     # Create fresh collection with GPU embedding function
+    print("Creating collection...", flush=True)
     collection = client.get_or_create_collection("university_docs", embedding_function=embedding_fn)
 
     # Count total chunks first for progress bar
-    print(" Counting chunks...")
+    print("Counting chunks...", flush=True)
     total_count = 0
     with open(json_file, 'rb') as f:
         for _ in ijson.items(f, 'item'):
@@ -69,9 +71,9 @@ def load_data(json_file="chunked_data.json", batch_size=5000):
 
     total_vectors = collection.count()
     elapsed_time = time.time() - start_time
-    print(f"\n Created {total_chunks} vectors in {batch_count} batches")
-    print(f" Collection: '{collection.name}' now contains {total_vectors} total vectors")
-    print(f" Total ingestion time: {elapsed_time:.2f} seconds")
+    print(f"\nCreated {total_chunks} vectors in {batch_count} batches", flush=True)
+    print(f"Collection: '{collection.name}' now contains {total_vectors} total vectors", flush=True)
+    print(f"Total ingestion time: {elapsed_time:.2f} seconds", flush=True)
 
 if __name__ == "__main__":
     load_data()

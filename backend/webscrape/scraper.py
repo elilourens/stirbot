@@ -1,7 +1,8 @@
 import httpx
 import asyncio
+import re
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urldefrag
 import time
 import json
 
@@ -56,11 +57,21 @@ async def process_url(scraper, url, semaphore, excluded_patterns, found_urls):
             for script in soup(['script', 'style']):
                 script.decompose()
 
+            # Remove navigation, header, and footer boilerplate
+            for element in soup.find_all(['nav', 'header', 'footer']):
+                element.decompose()
+            # Remove common boilerplate by role attributes
+            for element in soup.find_all(attrs={'role': ['navigation', 'banner', 'contentinfo']}):
+                element.decompose()
+            # Remove skip-to-content links
+            for element in soup.find_all('a', string=lambda s: s and 'skip to' in s.lower()):
+                element.decompose()
+
             # Extract page data
             page_data = {
                 'url': url,
                 'title': soup.find('title').get_text() if soup.find('title') else '',
-                'text': soup.get_text(separator=' ', strip=True),
+                'text': re.sub(r'\s+', ' ', soup.get_text(separator=' ', strip=True)).strip(),
                 'headings': [h.get_text() for h in soup.find_all(['h1', 'h2', 'h3'])]
             }
 
@@ -68,7 +79,7 @@ async def process_url(scraper, url, semaphore, excluded_patterns, found_urls):
             links = soup.find_all('a', href=True)
             new_urls = []
             for link in links:
-                absolute_url = urljoin(url, link['href'])
+                absolute_url = urldefrag(urljoin(url, link['href'])).url
 
                 # Apply same filtering logic
                 if absolute_url in found_urls:

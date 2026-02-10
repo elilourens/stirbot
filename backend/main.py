@@ -51,5 +51,5 @@ if __name__ == "__main__":
     #scrape()
     #ingest()
     #search("Library Opening times ")
-    #chatbot()
-    evaluate()
+    chatbot()
+    #evaluate()

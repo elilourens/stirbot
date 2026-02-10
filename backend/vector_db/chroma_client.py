@@ -17,10 +17,10 @@ class GPUEmbeddingFunction(EmbeddingFunction):
     def __init__(self, model_name="all-MiniLM-L6-v2"):
         # Try GPU first
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        print(f"Loading model on device: {self.device}")
+        print(f"Loading model on device: {self.device}", flush=True)
         self.model = SentenceTransformer(model_name, device=self.device)
         self.gpu_available = torch.cuda.is_available()
-        print(f"Model loaded successfully on {self.device}")
+        print(f"Model loaded successfully on {self.device}", flush=True)
 
     def __call__(self, texts):
         """Embed texts, fall back to CPU if CUDA kernel not available"""
