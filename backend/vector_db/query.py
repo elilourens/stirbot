@@ -7,15 +7,16 @@ def _base_url(url):
     return urldefrag(url).url
 
 
-def search(query, n_results=5, diverse=True):
+def search_with_sources(query, n_results=5, diverse=True):
+    """Search and return both the context string and a list of source dicts."""
     client = get_client()
     collection = client.get_or_create_collection("university_docs")
 
-    # Over-fetch when enforcing diversity so we have enough unique pages
     fetch_count = n_results * 4 if diverse else n_results
     results = collection.query(query_texts=[query], n_results=fetch_count)
 
     context_parts = []
+    sources = []
     seen_urls = set()
 
     for doc, metadata in zip(results['documents'][0], results['metadatas'][0]):
@@ -25,14 +26,27 @@ def search(query, n_results=5, diverse=True):
             continue
         seen_urls.add(base)
 
-        print(f"\nURL: {metadata['url']}")
-        print(f"Text: {doc[:200]}...\n")
         context_parts.append(f"Source: {metadata['url']}\n{doc}")
+        sources.append({
+            'url': metadata['url'],
+            'title': metadata.get('title', ''),
+            'snippet': doc[:200],
+        })
 
         if len(context_parts) >= n_results:
             break
 
-    return "\n\n".join(context_parts)
+    context = "\n\n".join(context_parts)
+    return context, sources
+
+
+def search(query, n_results=5, diverse=True):
+    """Search and return the context string (backwards-compatible)."""
+    context, sources = search_with_sources(query, n_results, diverse)
+    for s in sources:
+        print(f"\nURL: {s['url']}")
+        print(f"Text: {s['snippet']}...\n")
+    return context
 
 if __name__ == "__main__":
     import sys

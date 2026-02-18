@@ -47,9 +47,16 @@ def chatbot():
 
 
 
+def ui():
+    """Launch the Gradio web interface."""
+    from app import app
+    app.launch()
+
+
 if __name__ == "__main__":
     #scrape()
     #ingest()
     #search("Library Opening times ")
-    chatbot()
+    #chatbot()
     #evaluate()
+    ui()
