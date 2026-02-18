@@ -7,7 +7,7 @@ from llm_interface import chat
 
 # chatbot settings
 LLM_MODEL = "Mistral"
-SYSTEM_PROMPT = "You are a helpful chatbot that returns relevant appropriate answers for people interested in knowing more about stirling university. Give Citations about where you got your answers from."
+SYSTEM_PROMPT = "You are a concise chatbot about Stirling University. Answer only the question asked, using only relevant information from the provided context. Be brief and direct. Include citations about where you got your answers from."
 
 
 def ask_question(message, history):
@@ -32,7 +32,7 @@ def do_search(query):
     context, sources = search_with_sources(query)
     results = ""
     for s in sources:
-        results += f"### [{s['title'] or s['url']}]({s['url']})\n> {s['snippet'][:150]}...\n\n"
+        results += f"### [{s['title'] or s['url']}]({s['url']})\n> {s['snippet']}\n\n"
     return results
 
 
@@ -78,4 +78,4 @@ with gr.Blocks(title="Stirbot") as app:
         ingest_btn.click(do_ingest, outputs=ingest_output)
 
 if __name__ == "__main__":
-    app.launch()
+    app.launch(share=False)

@@ -32,6 +32,38 @@ class WebScraper:
             return BeautifulSoup(html_content, 'lxml')
         return None
 
+    def extract_accordion_sections(self, soup):
+        """Extract accordion sections from a page."""
+        accordions = []
+        accordion_containers = soup.find_all('div', {'data-behaviour': 'accordion'})
+
+        for container in accordion_containers:
+            title = None
+            content_div = None
+
+            # Pattern 1: Button with role='region' (nested accordions)
+            button = container.find('button', class_='stir-accordion--btn')
+            if button:
+                title = button.get_text(strip=True)
+                content_div = button.find_parent().find_next('div', role='region')
+
+            # Pattern 2: H3 title with c-wysiwyg-content (top-level accordions)
+            if not title:
+                h3 = container.find('h3')
+                if h3:
+                    title = h3.get_text(strip=True)
+                    content_div = container.find('div', class_='c-wysiwyg-content')
+
+            if title and content_div:
+                text = re.sub(r'\s+', ' ', content_div.get_text(separator=' ', strip=True)).strip()
+                if text:
+                    accordions.append({
+                        'title': title,
+                        'text': text
+                    })
+
+        return accordions
+
     async def scrape(self, url):
         """Main scraping method: fetch and parse a URL."""
         html_content = await self.fetch_page(url)
@@ -51,6 +83,10 @@ class WebScraper:
 async def process_url(scraper, url, semaphore, excluded_patterns, found_urls):
     """Process a single URL with semaphore-based rate limiting."""
     async with semaphore:
+        # skip if URL matches excluded patterns
+        if any(pattern in url for pattern in excluded_patterns):
+            return None, []
+
         soup = await scraper.scrape(url)
         if soup:
             # Remove scripts/styles
@@ -68,11 +104,13 @@ async def process_url(scraper, url, semaphore, excluded_patterns, found_urls):
                 element.decompose()
 
             # Extract page data
+            page_title = soup.find('title').get_text() if soup.find('title') else ''
             page_data = {
                 'url': url,
-                'title': soup.find('title').get_text() if soup.find('title') else '',
+                'title': page_title,
                 'text': re.sub(r'\s+', ' ', soup.get_text(separator=' ', strip=True)).strip(),
-                'headings': [h.get_text() for h in soup.find_all(['h1', 'h2', 'h3'])]
+                'headings': [h.get_text() for h in soup.find_all(['h1', 'h2', 'h3'])],
+                'accordions': scraper.extract_accordion_sections(soup)
             }
 
             # Extract links
@@ -100,6 +138,21 @@ async def main(chunk_size=1000, max_concurrent=10):
 
     excluded_patterns = [
         '/research/hub',
+        '/news',
+        # exclude binary/media files
+        '.pdf',
+        '.docx',
+        '.doc',
+        '.xlsx',
+        '.xls',
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.gif',
+        '.zip',
+        '.mp4',
+        '.mp3',
+        '.exe',
     ]
 
     semaphore = asyncio.Semaphore(max_concurrent)
