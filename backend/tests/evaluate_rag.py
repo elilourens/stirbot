@@ -164,8 +164,8 @@ def run_evaluation():
 
     import json
     details = {
-        "metrics_summary": metrics,
-        "overall_score": overall_score,
+        "metrics_summary": {k: float(v) for k, v in metrics.items()},
+        "overall_score": float(overall_score),
         "test_cases": [
             {"question": q, "answer": a, "ground_truth": gt}
             for q, a, gt in zip(

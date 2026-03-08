@@ -14,8 +14,8 @@ def ask_question(message, history):
     # search the database for relevant info
     context, sources = search_with_sources(message)
 
-    # get answer from the llm
-    answer = chat(message, context, LLM_MODEL, SYSTEM_PROMPT)
+    # get answer from the llm passing conversation history
+    answer = chat(message, context, LLM_MODEL, SYSTEM_PROMPT, history=history)
 
     # format the sources as links
     source_links = "\n".join([f"- [{s['title'] or s['url']}]({s['url']})" for s in sources])
@@ -38,12 +38,12 @@ def do_search(query):
 
 def do_scrape():
     asyncio.run(scraper.main(chunk_size=1000))
-    return "Scraping done!"
+    return "Scraping done."
 
 
 def do_ingest():
     load_data("chunked_data.json")
-    return "Ingestion done!"
+    return "Ingestion done."
 
 
 # build the ui
@@ -53,9 +53,12 @@ with gr.Blocks(title="Stirbot") as app:
     with gr.Tab("Chat"):
         chat_history = gr.Chatbot(height=300)
         question = gr.Textbox(placeholder="Ask about Stirling University...")
-        clear = gr.Button("Clear")
+        with gr.Row():
+            send_btn = gr.Button("Send")
+            clear = gr.Button("Clear")
 
         question.submit(ask_question, [question, chat_history], [chat_history, question])
+        send_btn.click(ask_question, [question, chat_history], [chat_history, question])
         clear.click(lambda: ([], ""), outputs=[chat_history, question])
 
     with gr.Tab("Search"):
@@ -66,7 +69,7 @@ with gr.Blocks(title="Stirbot") as app:
         search_btn.click(do_search, search_box, results)
 
     with gr.Tab("Scrape"):
-        gr.Markdown("Scrape the university website. This takes a while!")
+        gr.Markdown("Scrape the university website. This takes a while.")
         scrape_btn = gr.Button("Start Scrape")
         scrape_output = gr.Textbox(interactive=False)
         scrape_btn.click(do_scrape, outputs=scrape_output)
