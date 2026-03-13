@@ -13,6 +13,7 @@ ollama>=0.4.0
 
 # Web UI
 gradio>=4.0.0
+faster-whisper>=1.0.0
 
 # RAG Evaluation
 ragas>=0.1.0
@@ -23,5 +24,3 @@ langchain-ollama>=0.1.0
 # Uncomment and run these commands to enable GPU acceleration:
 # pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 # Then verify: python -c "import torch; print(torch.cuda.is_available())"
-#
-# For other CUDA versions, visit: https://pytorch.org/get-started/locally/
