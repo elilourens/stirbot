@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from ragas import evaluate
-from ragas.metrics import faithfulness, answer_relevancy
+from ragas.metrics import faithfulness, answer_relevancy, context_precision
 from ragas.llms.base import BaseRagasLLM, LLMResult
 from ragas.embeddings.base import Embeddings
 from datasets import Dataset
@@ -123,6 +123,7 @@ def run_evaluation():
         metrics=[
             faithfulness,
             answer_relevancy,
+            context_precision,
         ],
         llm=ollama_llm,
         embeddings=embeddings,
@@ -134,18 +135,23 @@ def run_evaluation():
     print("=" * 60)
 
     # Handle both scalar and list results from RAGAS
+    import math
+
     def get_scalar_score(value):
-        """Extract scalar from value, handling lists and numpy arrays."""
+        """Extract scalar from value, skipping NaN entries."""
         if isinstance(value, list):
-            return sum(value) / len(value) if value else 0
+            valid = [v for v in value if v is not None and not (isinstance(v, float) and math.isnan(v))]
+            return sum(valid) / len(valid) if valid else 0.0
         try:
-            return float(value)
+            f = float(value)
+            return 0.0 if math.isnan(f) else f
         except (TypeError, ValueError):
             return 0.0
 
     metrics = {
         "Faithfulness": get_scalar_score(ragas_results["faithfulness"]),
         "Answer Relevancy": get_scalar_score(ragas_results["answer_relevancy"]),
+        "Context Precision": get_scalar_score(ragas_results["context_precision"]),
     }
 
     for metric_name, score in metrics.items():
@@ -183,6 +189,7 @@ def run_evaluation():
     print("\nMetrics:")
     print("  Faithfulness: answers grounded in context (higher = better)")
     print("  Answer Relevancy: answers address the question (higher = better)")
+    print("  Context Precision: retrieved context is relevant to the question (higher = better)")
 
     return ragas_results
 
