@@ -1,5 +1,7 @@
 import asyncio
+import subprocess
 import sys
+from pathlib import Path
 import gradio as gr
 from faster_whisper import WhisperModel
 from webscrape import scraper
@@ -59,6 +61,27 @@ def do_ingest():
     return "Ingestion done."
 
 
+ANALYTICS_SCRIPT = Path(__file__).parent / "webscrape_analytics" / "analyse_pages.py"
+ANALYTICS_IMAGE = Path(__file__).parent / "webscrape_analytics" / "page_analytics.png"
+
+
+def get_analytics_image():
+    if ANALYTICS_IMAGE.exists():
+        return str(ANALYTICS_IMAGE)
+    return None
+
+
+def regenerate_analytics():
+    result = subprocess.run(
+        [sys.executable, str(ANALYTICS_SCRIPT)],
+        cwd=str(ANALYTICS_SCRIPT.parent),
+        capture_output=True,
+        text=True,
+    )
+    output = result.stdout + (result.stderr if result.returncode != 0 else "")
+    return str(ANALYTICS_IMAGE) if ANALYTICS_IMAGE.exists() else None, output
+
+
 # build the ui
 with gr.Blocks(title="Stirbot") as app:
     gr.Markdown("# Stirbot")
@@ -90,6 +113,12 @@ with gr.Blocks(title="Stirbot") as app:
             scrape_output = gr.Textbox(interactive=False)
             scrape_btn.click(do_scrape, outputs=scrape_output)
 
+            gr.Markdown("---\n### Scraping Analytics")
+            analytics_image = gr.Image(value=get_analytics_image(), label="Page Analytics")
+            regen_btn = gr.Button("Regenerate Analytics")
+            regen_output = gr.Textbox(interactive=False, label="Output")
+            regen_btn.click(regenerate_analytics, outputs=[analytics_image, regen_output])
+
         with gr.Tab("Ingest"):
             gr.Markdown("Load scraped data into the vector database.")
             ingest_btn = gr.Button("Start Ingestion")
@@ -97,4 +126,4 @@ with gr.Blocks(title="Stirbot") as app:
             ingest_btn.click(do_ingest, outputs=ingest_output)
 
 if __name__ == "__main__":
-    app.launch(share=False)
+    app.launch(share=True)

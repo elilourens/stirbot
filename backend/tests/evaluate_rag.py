@@ -77,7 +77,7 @@ def get_rag_response(question: str, n_results: int = 5):
             "for people interested in knowing more about Stirling University. "
             "Give Citations about where you got your answers from."
         )
-        response = chat(question, context, "Mistral", system_prompt)
+        response = chat(question, context, "mistral", system_prompt)
         return response, context
     except Exception as e:
         print(f"Error getting response for '{question}': {e}")

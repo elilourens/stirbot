@@ -50,7 +50,7 @@ def chatbot():
 def ui():
     """Launch the Gradio web interface."""
     from app import app
-    app.launch(share=False)
+    app.launch(share=True)
 
 
 if __name__ == "__main__":
