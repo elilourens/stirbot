@@ -1,24 +1,13 @@
-# Stirbot - University Website Scraper
+# Stirbot - University of Stirling Website Chatbot
 
-A Python-based web scraping project for extracting data from the University of Stirling website.
+RAG architecture llm chatbot to answer natural language queries from users. Webscrapes the Uni wesbite, ingesting and chunks data for retrieval from a vector db and then performs rag on user queries to create an answer.
 
-## Running the app
 
-**Tester mode** (chatbot only — scraping and ingestion hidden) so testers can't remove db:
-```bash
-python app.py
-```
-
-**Admin mode** (all tabs visible, including Scrape and Ingest):
-```bash
-python app.py --admin
-```
-
-> **Warning:** Only run admin mode if you know what you're doing. Triggering a scrape or re-ingestion will overwrite the existing db.
+> **Warning:** Only run admin mode if you know what you're doing. Triggering a scrape or re-ingestion will overwrite the existing db which can take awhile depending on hardware.
 
 ## AI Assistance Documentation
 
-This project used Claude AI (Anthropic) for code generation and debugging assistance. All AI-generated code is clearly marked in the source files.
+This project used Claude (Anthropic LLM) for code generation and debugging assistance. All AI-generated code is clearly marked in the source files.
 
 ### AI Usage Records
 
@@ -41,26 +30,17 @@ This project used Claude AI (Anthropic) for code generation and debugging assist
 ### AI Usage Policy Compliance
 
 All AI-generated code follows these documentation practices:
-- **Clear Markers:** Each AI-generated section is surrounded by clear comments indicating AI generation
+- **Clear Markers:** Each AI-generated section is surrounded by clear comments indicating AI generation and date
 - **Attribution:** The specific AI model and version is documented
-- **Date Tracking:** Generation dates are included where available
 - **Purpose Documentation:** The reason for using AI assistance is stated
-- **Review Process:** All AI-generated code was reviewed, tested, and integrated by the developer
+- **Review Process:** All AI-generated code was reviewed, tested, and integrated by me
 
-### Code Review Process for AI-Generated Code
-
-1. **Generation:** AI provides initial code based on specific prompts
-2. **Review:** Developer examines the code for correctness, security, and style
-3. **Testing:** Code is tested with relevant test cases
-4. **Integration:** Code is integrated with proper documentation and markers
-5. **Maintenance:** AI-generated code is treated like any other code - updated and maintained as needed
 
 ## Project Structure
 
 ```
 stirbot/
 ├── .git/                  # Git metadata and version history
-├── .claude/               # Claude AI configuration
 ├── backend/               # Main application code
 │   ├── app.py             # Gradio web interface
 │   ├── main.py            # Main application entry point
@@ -99,6 +79,7 @@ The following libraries are used but not included in this archive (listed in `re
 ### Prerequisites
 - Python 3.12+
 - Git
+- Package manager such as pip
 
 ### Setup
 ```bash
@@ -115,29 +96,31 @@ venv\Scripts\activate    # Windows
 pip install -r requirements.txt
 ```
 
+## Running the app
+
+**Tester mode** (chatbot only — scraping and ingestion hidden) so testers can't remove db:
+```bash
+python app.py
+```
+
+**Admin mode** (all tabs visible, including Scrape and Ingest):
+```bash
+python app.py --admin
+```
+
 ### Running Tests
 ```bash
 cd backend
-python -m pytest tests/
+python -m tests.evaluate_rag
 ```
 
 ## Data Information
+Webscraped data is quite large. 
 
 ### Input Data
-The project scrapes data from the University of Stirling website. No large datasets are included in this archive.
+The project scrapes data from the University of Stirling website. No large datasets are included in this repo.
 
 ### Generated Data
 - Vector database files are generated at runtime in `chroma_db/`
 - Scraped data is processed and stored in the vector database
 - Test results are generated in `backend/tests/results/`
-
-## Technical Details
-
-- **Language:** Python 3.12+
-- **Framework:** Gradio for web interface
-- **Vector Database:** ChromaDB
-- **LLM:** Ollama-compatible models
-- **Testing:** Pytest
-
-## License
-This project is licensed under the terms in the LICENSE file.
